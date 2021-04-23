@@ -31,7 +31,7 @@ public extension KeychainClient {
     }()
 }
 
-extension KeychainClient {
+public extension KeychainClient {
     static let live: KeychainClient = {
         let keychain = KeychainSwift()
 
