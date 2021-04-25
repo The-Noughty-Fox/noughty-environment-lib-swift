@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import UserNotifications
 
 public enum NotificationsAction {
     // call this to trigger status flow
