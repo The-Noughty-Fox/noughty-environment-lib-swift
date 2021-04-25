@@ -12,7 +12,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "0.18.0"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", .branch("iso")),
         .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0")
     ],
     targets: [
