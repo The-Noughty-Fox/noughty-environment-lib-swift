@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		690EF6C92632BEFF006E2DEF /* NSObjectProtocolExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690EF6C82632BEFF006E2DEF /* NSObjectProtocolExtensions.swift */; };
+		69446C382635756D00486CBD /* Notifications+ComposableArchitecture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69446C372635756D00486CBD /* Notifications+ComposableArchitecture.swift */; };
 		OBJ_105 /* CasePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_68 /* CasePath.swift */; };
 		OBJ_106 /* CasePaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_69 /* CasePaths.swift */; };
 		OBJ_107 /* EnumReflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_70 /* EnumReflection.swift */; };
@@ -148,6 +149,7 @@
 
 /* Begin PBXFileReference section */
 		690EF6C82632BEFF006E2DEF /* NSObjectProtocolExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObjectProtocolExtensions.swift; sourceTree = "<group>"; };
+		69446C372635756D00486CBD /* Notifications+ComposableArchitecture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notifications+ComposableArchitecture.swift"; sourceTree = "<group>"; };
 		"KeychainSwift::KeychainSwift::Product" /* KeychainSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = KeychainSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"NoughtyEnvironment::NoughtyEnvironment::Product" /* NoughtyEnvironment.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NoughtyEnvironment.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* DateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateProvider.swift; sourceTree = "<group>"; };
@@ -287,6 +289,7 @@
 			children = (
 				OBJ_18 /* RemoteNotificationsClient.swift */,
 				OBJ_19 /* UserNotificationsClient.swift */,
+				69446C372635756D00486CBD /* Notifications+ComposableArchitecture.swift */,
 			);
 			path = PushNotifications;
 			sourceTree = "<group>";
@@ -399,7 +402,7 @@
 			path = SwiftUI;
 			sourceTree = "<group>";
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -410,7 +413,6 @@
 				OBJ_98 /* build */,
 				OBJ_99 /* README.md */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_59 /* TestSupport */ = {
@@ -748,7 +750,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_91 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -864,6 +866,7 @@
 				OBJ_197 /* RemoteNotificationsClient.swift in Sources */,
 				OBJ_198 /* UserNotificationsClient.swift in Sources */,
 				690EF6C92632BEFF006E2DEF /* NSObjectProtocolExtensions.swift in Sources */,
+				69446C382635756D00486CBD /* Notifications+ComposableArchitecture.swift in Sources */,
 				OBJ_199 /* TimerClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
