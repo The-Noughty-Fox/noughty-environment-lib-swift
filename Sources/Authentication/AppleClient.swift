@@ -27,13 +27,13 @@ public extension AppleClient {
             public let identifier: String
         }
         public let userInfo: User
-        public let token: Data
-        public let authorizationCode: Data
+        public let token: String
+        public let authorizationCode: String
     }
 
     struct LoginCredentials: Codable {
-        public let token: Data
-        public let authorizationCode: Data
+        public let token: String
+        public let authorizationCode: String
     }
 }
 
@@ -57,8 +57,8 @@ public extension AppleClient {
                 didCompleteWithAuthorization authorization: ASAuthorization
             ) {
                 guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
-                      let token = appleIDCredential.identityToken,
-                      let authorizationCode = appleIDCredential.authorizationCode else {
+                      let token = appleIDCredential.identityToken.flatMap({ String(data: $0, encoding: .utf8) }),
+                      let authorizationCode = appleIDCredential.authorizationCode.flatMap({ String(data: $0, encoding: .utf8) }) else {
                     fatalError("authorization not with apple id")
                 }
                 guard let fullName = appleIDCredential.fullName, let email = appleIDCredential.email else {
