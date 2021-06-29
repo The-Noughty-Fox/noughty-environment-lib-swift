@@ -14,6 +14,13 @@ public struct AppleClient {
 }
 
 public extension AppleClient {
+    // API-friendly structure to be consumed as either login or signup depending if there's 'userInfo'
+    struct APICredentials: Codable {
+        public let userInfo: AppleClient.SignupCredentials.User?
+        public let token: String
+        public let authorizationCode: String
+    }
+
     struct SignupCredentials: Codable {
         public struct User: Codable {
             public struct Name: Codable {
@@ -111,7 +118,7 @@ public extension AppleClient {
                     case .login(let creds): return .right(creds)
                     case .error(let error): return nil // TODO(alex): handle error
                     }
-                }.eraseToEffect()
+                }.first().eraseToEffect()
             }
         )
     }()
