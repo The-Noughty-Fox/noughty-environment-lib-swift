@@ -27,7 +27,41 @@ public extension HealthClient {
             workoutDetails: { store.workout($0.id).flatMap(store.workoutWithDetails).eraseToEffect() }
         )
     }()
+}
 
+public struct HealthEnvironment {
+    let health: () -> HealthClient
+
+    public init(health: @escaping () -> HealthClient) {
+        self.health = health
+    }
+}
+
+public enum HealthAction {
+    case request
+    case authorize
+    case authorized(Bool)
+    case error(Error)
+}
+
+public let healthReducer = Reducer<Void, HealthAction, HealthEnvironment> { _, action, environment in
+    switch action {
+    case .request:
+        return environment.health().shouldAuthorize()
+            .map { $0 ? HealthAction.authorize : .authorized(true) }
+            .catch { Just(.error($0)) }
+            .eraseToEffect()
+    case .authorize:
+        return environment.health().authorize()
+            .map(HealthAction.authorized)
+            .catch { Just(.error($0)) }
+            .eraseToEffect()
+    case .authorized, .error:
+        return .none
+    }
+}
+
+public extension HealthClient {
     static let authorized = Self(
         shouldAuthorize: { Effect(value: false) },
         authorize: { Effect(value: true) },
