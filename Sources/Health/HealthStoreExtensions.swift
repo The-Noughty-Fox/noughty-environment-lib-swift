@@ -104,6 +104,16 @@ extension HKHealthStore {
 // MARK: - Workouts
 
 extension HKHealthStore {
+    func workoutsWithRoutes(_ limit: Int) -> AnyPublisher<[Workout], Error> {
+        workouts(limit)
+            .flatMap {
+                Publishers.MergeMany($0.map { self.workoutWithDetails(from: $0) })
+            }
+            .filter({ !$0.locations.isEmpty })
+            .collect()
+            .eraseToAnyPublisher()
+    }
+    
     func workouts(_ limit: Int) -> AnyPublisher<[HKWorkout], Error> {
         requestWorkouts(
             limit: limit,

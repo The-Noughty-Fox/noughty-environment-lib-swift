@@ -13,6 +13,7 @@ public struct HealthClient {
     public let shouldAuthorize: () -> Effect<Bool, Error>
     public let authorize: () -> Effect<Bool, Error>
     public let workouts: () -> Effect<[Workout], Error>
+    public let workoutsWithRoutes: () -> Effect<[Workout], Error>
     public let workoutDetails: (Workout) -> Effect<Workout, Error>
 }
 
@@ -24,6 +25,9 @@ public extension HealthClient {
             shouldAuthorize: { store.shouldAuthorize().receive(on: DispatchQueue.main).eraseToEffect() },
             authorize: { store.authorize().receive(on: DispatchQueue.main).eraseToEffect() },
             workouts: { store.workouts(100_000).map { $0.map { Workout(hkWorkout: $0) } }.eraseToEffect() },
+            workoutsWithRoutes: {
+                store.workoutsWithRoutes(100_000).eraseToEffect()
+            },
             workoutDetails: { store.workout($0.id).flatMap(store.workoutWithDetails).eraseToEffect() }
         )
     }()
@@ -93,6 +97,7 @@ public extension HealthClient {
                 ]
             )
         },
+        workoutsWithRoutes: { .none },
         workoutDetails: Effect.init
     )
 }
