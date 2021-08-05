@@ -30,6 +30,7 @@ public struct Workout: Equatable, Identifiable {
     }
 
     public typealias Meters = Double
+    public typealias Route = [[CLLocation]]
 
     public var id: UUID
     public var activityType: ActivityType
@@ -37,7 +38,7 @@ public struct Workout: Equatable, Identifiable {
     public var startDate: Date
     public var endDate: Date
     public var distance: Meters
-    public var locations: [CLLocation]
+    public var route: Route
 
     public init(
         id: UUID,
@@ -46,7 +47,7 @@ public struct Workout: Equatable, Identifiable {
         startDate: Date,
         endDate: Date,
         distance: Meters,
-        locations: [CLLocation] = []
+        route: Route = []
     ) {
         self.id = id
         self.activityType = activityType
@@ -54,7 +55,7 @@ public struct Workout: Equatable, Identifiable {
         self.startDate = startDate
         self.endDate = endDate
         self.distance = distance
-        self.locations = locations
+        self.route = route
     }
 }
 
@@ -77,7 +78,7 @@ public extension Workout {
 }
 
 extension Workout {
-    init(hkWorkout: HKWorkout, locations: [CLLocation] = []) {
+    init(hkWorkout: HKWorkout, route: Route = []) {
         self.init(
             id: hkWorkout.uuid,
             activityType: ActivityType(hkWorkout.workoutActivityType),
@@ -85,7 +86,7 @@ extension Workout {
             startDate: hkWorkout.startDate,
             endDate: hkWorkout.endDate,
             distance: hkWorkout.totalDistance?.doubleValue(for: .meter()) ?? 0,
-            locations: locations
+            route: route
         )
     }
 }

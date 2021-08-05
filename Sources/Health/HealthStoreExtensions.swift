@@ -109,11 +109,11 @@ extension HKHealthStore {
             .flatMap {
                 Publishers.MergeMany($0.map { self.workoutWithDetails(from: $0) })
             }
-            .filter({ !$0.locations.isEmpty })
+            .filter { !$0.route.isEmpty }
             .collect()
             .eraseToAnyPublisher()
     }
-    
+
     func workouts(_ limit: Int) -> AnyPublisher<[HKWorkout], Error> {
         requestWorkouts(
             limit: limit,
@@ -165,7 +165,7 @@ extension HKHealthStore {
         return routes
             .flatMap { Publishers.MergeMany($0.map(self.locations)) }
             .collect()
-            .map { Workout(hkWorkout: workout, locations: $0.flatMap { $0 }) }
+            .map { Workout(hkWorkout: workout, route: $0) }
             .eraseToAnyPublisher()
     }
 

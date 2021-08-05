@@ -25,9 +25,7 @@ public extension HealthClient {
             shouldAuthorize: { store.shouldAuthorize().receive(on: DispatchQueue.main).eraseToEffect() },
             authorize: { store.authorize().receive(on: DispatchQueue.main).eraseToEffect() },
             workouts: { store.workouts(100_000).map { $0.map { Workout(hkWorkout: $0) } }.eraseToEffect() },
-            workoutsWithRoutes: {
-                store.workoutsWithRoutes(100_000).eraseToEffect()
-            },
+            workoutsWithRoutes: { store.workoutsWithRoutes(100_000).eraseToEffect() },
             workoutDetails: { store.workout($0.id).flatMap(store.workoutWithDetails).eraseToEffect() }
         )
     }()
