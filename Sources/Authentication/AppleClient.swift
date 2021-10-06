@@ -16,12 +16,24 @@ public struct AppleClient {
 public extension AppleClient {
     // API-friendly structure to be consumed as either login or signup depending if there's 'userInfo'
     struct APICredentials: Codable {
+        public init(userInfo: AppleClient.SignupCredentials.User?, token: String, authorizationCode: String) {
+            self.userInfo = userInfo
+            self.token = token
+            self.authorizationCode = authorizationCode
+        }
+
         public let userInfo: AppleClient.SignupCredentials.User?
         public let token: String
         public let authorizationCode: String
     }
 
     struct SignupCredentials: Codable {
+        public init(userInfo: AppleClient.SignupCredentials.User, token: String, authorizationCode: String) {
+            self.userInfo = userInfo
+            self.token = token
+            self.authorizationCode = authorizationCode
+        }
+
         public struct User: Codable {
             public struct Name: Codable {
                 public let given: String?

@@ -29,7 +29,7 @@ public extension HealthClient {
 
 // MARK: - Authorization
 
-extension HKHealthStore {
+public extension HKHealthStore {
     typealias Error = HealthClient.Error
 
     func shouldAuthorize() -> AnyPublisher<Bool, Error> {
@@ -103,7 +103,7 @@ extension HKHealthStore {
 
 // MARK: - Workouts
 
-extension HKHealthStore {
+public extension HKHealthStore {
     func workoutsWithRoutes(_ limit: Int) -> AnyPublisher<[Workout], Error> {
         workouts(limit)
             .flatMap {
@@ -155,7 +155,7 @@ extension HKHealthStore {
 
 // MARK: - Workout Details
 
-extension HKHealthStore {
+public extension HKHealthStore {
     func workoutWithDetails(from workout: HKWorkout) -> AnyPublisher<Workout, Error> {
         let routes: AnyPublisher<[HKWorkoutRoute], Error> = executeQuery(
             sampleType: HKSeriesType.workoutRoute(),
