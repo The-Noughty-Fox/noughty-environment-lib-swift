@@ -1,14 +1,16 @@
 import Combine
-import ComposableArchitecture
 import UserNotifications
+import CombineExt
+import ComposableArchitecture
 
+//TODO: Add pending and delivered notifications management
 public struct UserNotificationClient {
-    public var add: (UNNotificationRequest) -> Effect<Void, Error>
-    public var delegate: Effect<DelegateEvent, Never>
-    public var getNotificationSettings: Effect<Notification.Settings, Never>
-    public var removeDeliveredNotificationsWithIdentifiers: ([String]) -> Effect<Never, Never>
-    public var removePendingNotificationRequestsWithIdentifiers: ([String]) -> Effect<Never, Never>
-    public var requestAuthorization: (UNAuthorizationOptions) -> Effect<Bool, Error>
+    public var add: (UNNotificationRequest) -> AnyPublisher<Void, Error>
+    public var delegate: AnyPublisher<DelegateEvent, Never>
+    public var getNotificationSettings: AnyPublisher<Notification.Settings, Never>
+    public var removeDeliveredNotificationsWithIdentifiers: ([String]) -> Void
+    public var removePendingNotificationRequestsWithIdentifiers: ([String]) -> Void
+    public var requestAuthorization: (UNAuthorizationOptions) -> AnyPublisher<Bool, Error>
 
     public enum DelegateEvent: Equatable {
         case didReceiveResponse(Notification.Response, completionHandler: () -> Void)
@@ -64,55 +66,57 @@ public struct UserNotificationClient {
 extension UserNotificationClient {
     public static let live = Self(
         add: { request in
-            .future { callback in
-                UNUserNotificationCenter.current().add(request) { error in
-                    if let error = error {
-                        callback(.failure(error))
-                    } else {
-                        callback(.success(()))
-                    }
-                }
-            }
-        },
-        delegate:
-            Effect
-            .run { subscriber in
-                var delegate: Optional = Delegate(subscriber: subscriber)
-                UNUserNotificationCenter.current().delegate = delegate
-                return AnyCancellable {
-                    delegate = nil
-                }
-            }
-            .share()
-            .eraseToEffect(),
-        getNotificationSettings: .future { callback in
-            UNUserNotificationCenter.current().getNotificationSettings { settings in
-                callback(.success(.init(rawValue: settings)))
-            }
-        },
-        removeDeliveredNotificationsWithIdentifiers: { identifiers in
-            .fireAndForget {
-                UNUserNotificationCenter.current()
-                    .removeDeliveredNotifications(withIdentifiers: identifiers)
-            }
-        },
-        removePendingNotificationRequestsWithIdentifiers: { identifiers in
-            .fireAndForget {
-                UNUserNotificationCenter.current()
-                    .removePendingNotificationRequests(withIdentifiers: identifiers)
-            }
-        },
-        requestAuthorization: { options in
-            .future { callback in
-                UNUserNotificationCenter.current()
-                    .requestAuthorization(options: options) { granted, error in
+            Deferred {
+                Future { callback in
+                    UNUserNotificationCenter.current().add(request) { error in
                         if let error = error {
                             callback(.failure(error))
                         } else {
-                            callback(.success(granted))
+                            callback(.success(()))
                         }
                     }
+                }
             }
+            .eraseToAnyPublisher()
+        },
+        delegate: {
+            var delegate = Delegate()
+            UNUserNotificationCenter.current().delegate = delegate
+
+            return delegate.subject.eraseToAnyPublisher()
+        }(),
+        getNotificationSettings:
+            Deferred {
+                Future { callback in
+                    UNUserNotificationCenter.current().getNotificationSettings { settings in
+                        callback(.success(.init(rawValue: settings)))
+                    }
+                }
+            }
+            .eraseToAnyPublisher()
+        ,
+        removeDeliveredNotificationsWithIdentifiers: { identifiers in
+            UNUserNotificationCenter.current()
+                .removeDeliveredNotifications(withIdentifiers: identifiers)
+        },
+        removePendingNotificationRequestsWithIdentifiers: { identifiers in
+            UNUserNotificationCenter.current()
+                .removePendingNotificationRequests(withIdentifiers: identifiers)
+        },
+        requestAuthorization: { options in
+            Deferred {
+                Future { callback in
+                    UNUserNotificationCenter.current()
+                        .requestAuthorization(options: options) { granted, error in
+                            if let error = error {
+                                callback(.failure(error))
+                            } else {
+                                callback(.success(granted))
+                            }
+                        }
+                }
+            }
+            .eraseToAnyPublisher()
         }
     )
 }
@@ -138,18 +142,14 @@ extension UserNotificationClient.Notification.Settings {
 
 extension UserNotificationClient {
     fileprivate class Delegate: NSObject, UNUserNotificationCenterDelegate {
-        let subscriber: Effect<UserNotificationClient.DelegateEvent, Never>.Subscriber
-
-        init(subscriber: Effect<UserNotificationClient.DelegateEvent, Never>.Subscriber) {
-            self.subscriber = subscriber
-        }
+        let subject = PassthroughSubject<UserNotificationClient.DelegateEvent, Never>()
 
         func userNotificationCenter(
             _ center: UNUserNotificationCenter,
             didReceive response: UNNotificationResponse,
             withCompletionHandler completionHandler: @escaping () -> Void
         ) {
-            self.subscriber.send(
+            subject.send(
                 .didReceiveResponse(.init(rawValue: response), completionHandler: completionHandler)
             )
         }
@@ -158,7 +158,7 @@ extension UserNotificationClient {
             _ center: UNUserNotificationCenter,
             openSettingsFor notification: UNNotification?
         ) {
-            self.subscriber.send(
+            subject.send(
                 .openSettingsForNotification(notification.map(Notification.init(rawValue:)))
             )
         }
@@ -169,7 +169,7 @@ extension UserNotificationClient {
             withCompletionHandler completionHandler:
                 @escaping (UNNotificationPresentationOptions) -> Void
         ) {
-            self.subscriber.send(
+            subject.send(
                 .willPresentNotification(
                     .init(rawValue: notification),
                     completionHandler: completionHandler
@@ -181,12 +181,12 @@ extension UserNotificationClient {
 
 extension UserNotificationClient {
     public static let noop = Self(
-        add: { _ in .none },
-        delegate: .none,
-        getNotificationSettings: .none,
-        removeDeliveredNotificationsWithIdentifiers: { _ in .none },
-        removePendingNotificationRequestsWithIdentifiers: { _ in .none },
-        requestAuthorization: { _ in .none }
+        add: { _ in Empty().eraseToAnyPublisher() },
+        delegate: Empty().eraseToAnyPublisher(),
+        getNotificationSettings: Empty().eraseToAnyPublisher(),
+        removeDeliveredNotificationsWithIdentifiers: { _ in  },
+        removePendingNotificationRequestsWithIdentifiers: { _ in },
+        requestAuthorization: { _ in Empty().eraseToAnyPublisher() }
     )
 }
 

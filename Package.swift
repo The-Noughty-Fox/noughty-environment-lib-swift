@@ -13,14 +13,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", .branch("iso")),
-        .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0")
+        .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0"),
+        .package(name: "CombineExt", url: "https://github.com/CombineCommunity/CombineExt.git", from: "1.0.0")
     ],
     targets: [
         .target(
             name: "NoughtyEnvironment",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                "KeychainSwift"
+                "KeychainSwift",
+                "CombineExt"
             ],
             path: "Sources"
         )
