@@ -80,10 +80,16 @@ extension UserNotificationClient {
             .eraseToAnyPublisher()
         },
         delegate: {
-            var delegate = Delegate()
-            UNUserNotificationCenter.current().delegate = delegate
+            AnyPublisher.create { subscriber in
+                var delegate: Optional = Delegate()
+                UNUserNotificationCenter.current().delegate = delegate
+                let cancellable = delegate?.subject.sink(receiveCompletion: subscriber.send(completion:), receiveValue: subscriber.send(_:))
 
-            return delegate.subject.eraseToAnyPublisher()
+                return AnyCancellable {
+                    cancellable?.cancel()
+                    delegate = nil
+                }
+            }
         }(),
         getNotificationSettings:
             Deferred {
