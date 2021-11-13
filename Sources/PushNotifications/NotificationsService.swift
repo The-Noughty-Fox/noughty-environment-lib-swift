@@ -57,12 +57,12 @@ public class NotificationsService {
 
     public func requestPermissions() -> AnyPublisher<Bool, Error> {
         check()
-            .recieveOnMain()
             .flatMap { [unowned self] status -> AnyPublisher<Bool, Error> in
                 switch status {
                 case .notDetermined:
                     return self.environment.userNotifications()
                         .requestAuthorization([.alert, .badge, .sound])
+                        .recieveOnMain()
                         .map { [unowned self] in
                             if $0 {
                                 self.environment.remoteNotifications().register()
