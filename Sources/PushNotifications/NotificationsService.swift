@@ -57,6 +57,7 @@ public class NotificationsService {
 
     public func requestPermissions() -> AnyPublisher<Bool, Error> {
         check()
+            .recieveOnMain()
             .flatMap { [unowned self] status -> AnyPublisher<Bool, Error> in
                 switch status {
                 case .notDetermined:
