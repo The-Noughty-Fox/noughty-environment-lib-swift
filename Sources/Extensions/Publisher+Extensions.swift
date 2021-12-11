@@ -44,7 +44,7 @@ public extension Publisher {
         sink(receiveCompletion: {_ in}, receiveValue: {_ in})
     }
 
-    func recieveOnMain() -> AnyPublisher<Output, Failure> {
+    func receiveOnMain() -> AnyPublisher<Output, Failure> {
         receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }

@@ -62,7 +62,7 @@ public class NotificationsService {
                 case .notDetermined:
                     return self.environment.userNotifications()
                         .requestAuthorization([.alert, .badge, .sound])
-                        .recieveOnMain()
+                        .receiveOnMain()
                         .map { [unowned self] in
                             if $0 {
                                 self.environment.remoteNotifications().register()
