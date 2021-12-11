@@ -104,8 +104,8 @@ public extension HKHealthStore {
 // MARK: - Workouts
 
 public extension HKHealthStore {
-    func workoutsWithRoutes(_ limit: Int) -> AnyPublisher<[Workout], Error> {
-        workouts(limit)
+    func workoutsWithRoutes(since start: Date) -> AnyPublisher<[Workout], Error> {
+        workouts(since: start)
             .flatMap {
                 Publishers.MergeMany($0.map { self.workoutWithDetails(from: $0) })
             }
@@ -117,6 +117,23 @@ public extension HKHealthStore {
     func workouts(_ limit: Int) -> AnyPublisher<[HKWorkout], Error> {
         requestWorkouts(
             limit: limit,
+            sortDescriptors: [
+                NSSortDescriptor(
+                    key: HKSampleSortIdentifierEndDate,
+                    ascending: false
+                )
+            ]
+        )
+    }
+
+    func workouts(since start: Date) -> AnyPublisher<[HKWorkout], Error> {
+        requestWorkouts(
+            predicate: HKQuery.predicateForSamples(
+                withStart: start,
+                end: nil,
+                options: .strictStartDate
+            ),
+            limit: 20,
             sortDescriptors: [
                 NSSortDescriptor(
                     key: HKSampleSortIdentifierEndDate,
