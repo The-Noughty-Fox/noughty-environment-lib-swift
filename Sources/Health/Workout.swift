@@ -60,20 +60,12 @@ public struct Workout: Equatable, Identifiable {
 }
 
 public extension Workout {
-    var formattedDate: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-
-        return formatter.string(from: startDate)
-    }
+    var formattedDate: String { startDate.formattedDate }
 
     var formattedDistance: String {
         let length = Measurement<UnitLength>(value: distance, unit: .meters)
-        let formatter = MeasurementFormatter()
-        formatter.unitStyle = .short
 
-        return formatter.string(from: length)
+        return MeasurementFormatter.short.string(from: length)
     }
 }
 
