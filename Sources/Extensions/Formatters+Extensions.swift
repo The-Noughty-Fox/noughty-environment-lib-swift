@@ -27,11 +27,20 @@ public extension DateFormatter {
 
     static let monthFormatter = DateFormatter()
         .set(\.dateFormat, "MMMM yyyy")
+
+    static let mediumDate = DateFormatter()
+        .set(\.dateStyle, .medium)
+        .set(\.timeStyle, .none)
 }
 
 public extension NumberFormatter {
     static let ordinalFormatter = NumberFormatter()
         .set(\.numberStyle, .ordinal)
+}
+
+public extension MeasurementFormatter {
+    static let short = MeasurementFormatter()
+        .set(\.unitStyle, .short)
 }
 
 public extension Date {
@@ -63,11 +72,7 @@ public extension Date {
     }
 
     var formattedDate: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-
-        return formatter.string(from: self)
+        DateFormatter.mediumDate.string(from: self)
     }
 }
 
