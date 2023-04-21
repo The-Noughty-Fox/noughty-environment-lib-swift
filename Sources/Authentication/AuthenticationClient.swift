@@ -13,29 +13,35 @@ public struct Authentication<User> {
         public struct API {
             let authenticateWithApple: (AppleClient.APICredentials) -> AnyPublisher<User, Error>
             let authenticateWithGoogle: (GoogleClient.Credentials) -> AnyPublisher<User, Error>
+            let authenticateWithFacebook: (FacebookClient.Credentials) -> AnyPublisher<User, Error>
 
             public init(
                 authenticateWithApple: @escaping (AppleClient.APICredentials) -> AnyPublisher<User, Error>,
-                authenticateWithGoogle: @escaping (GoogleClient.Credentials) -> AnyPublisher<User, Error>
+                authenticateWithGoogle: @escaping (GoogleClient.Credentials) -> AnyPublisher<User, Error>,
+                authenticateWithFacebook: @escaping (FacebookClient.Credentials) -> AnyPublisher<User, Error>
             ) {
                 self.authenticateWithApple = authenticateWithApple
                 self.authenticateWithGoogle = authenticateWithGoogle
+                self.authenticateWithFacebook = authenticateWithFacebook
             }
         }
         public let api: () -> API
         public let appleClient: () -> AppleClient
         public let googleClient: () -> GoogleClient
+        public let facebookClient: () -> FacebookClient
         public let keychain: () -> KeychainClient
 
         public init(
             api: @escaping () -> API,
             appleClient: @escaping () -> AppleClient,
             googleClient: @escaping () -> GoogleClient,
+            facebookClient: @escaping () -> FacebookClient,
             keychain: @escaping () -> KeychainClient
         ) {
             self.api = api
             self.appleClient = appleClient
             self.googleClient = googleClient
+            self.facebookClient = facebookClient
             self.keychain = keychain
         }
     }
@@ -88,6 +94,13 @@ public struct Authentication<User> {
         return environment.googleClient()
             .authenticate(clientID, presenter)
             .flatMap(environment.api().authenticateWithGoogle)
+            .eraseToAnyPublisher()
+    }
+
+    public func authenticateWithFacebook(permissions: [String]) -> AnyPublisher<User, Error> {
+        return environment.facebookClient()
+            .authenticate(permissions)
+            .flatMap(environment.api().authenticateWithFacebook)
             .eraseToAnyPublisher()
     }
 }

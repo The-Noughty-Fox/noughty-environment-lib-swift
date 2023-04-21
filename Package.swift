@@ -14,7 +14,8 @@ let package = Package(
     dependencies: [
         .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0"),
         .package(name: "CombineExt", url: "https://github.com/CombineCommunity/CombineExt.git", from: "1.0.0"),
-        .package(url: "https://github.com/google/GoogleSignIn-iOS", .upToNextMajor(from: "6.0.0"))
+        .package(url: "https://github.com/google/GoogleSignIn-iOS", .upToNextMajor(from: "6.0.0")),
+        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", .upToNextMajor(from: "16.0.0"))
     ],
     targets: [
         .target(
@@ -22,7 +23,8 @@ let package = Package(
             dependencies: [
                 "KeychainSwift",
                 "CombineExt",
-                .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS")
+                .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
+                .product(name: "FacebookLogin", package: "facebook-ios-sdk")
             ],
             path: "Sources"
         )
