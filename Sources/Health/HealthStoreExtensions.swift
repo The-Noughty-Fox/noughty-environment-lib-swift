@@ -9,7 +9,7 @@ import HealthKit
 import CoreLocation
 import Combine
 
-public extension HealthClient {
+public extension HKHealthStore {
     enum Error: Swift.Error {
         case notAvailableOnDevice
         case noData(type: String)
@@ -30,8 +30,6 @@ public extension HealthClient {
 // MARK: - Authorization
 
 public extension HKHealthStore {
-    typealias Error = HealthClient.Error
-
     func shouldAuthorize() -> AnyPublisher<Bool, Error> {
         shouldAuthorize(includeSharePermission: false)
     }

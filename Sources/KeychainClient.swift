@@ -8,14 +8,13 @@
 import KeychainSwift
 import Foundation
 import Combine
-import ComposableArchitecture
 
 public struct KeychainClient {
     public enum Key: String {
         case user
     }
 
-    public let storeUser: (AppleClient.SignupCredentials.User) -> Effect<Key, Error>
+    public let storeUser: (AppleClient.SignupCredentials.User) -> AnyPublisher<Key, Error>
 }
 
 public extension KeychainClient {
@@ -25,7 +24,7 @@ public extension KeychainClient {
         return Self(
             storeUser: { user in
                 storedUser = user
-                return Effect(value: .user)
+                return Just(.user).setFailureType(to: Error.self).eraseToAnyPublisher()
             }
         )
     }()
@@ -36,17 +35,20 @@ public extension KeychainClient {
         let keychain = KeychainSwift()
 
         return KeychainClient(
-            storeUser: { user -> Effect<Key, Error> in
-                .result {
-                    do {
-                        let data = try JSONEncoder().encode(user)
-                        keychain.set(data, forKey: Key.user.rawValue)
+            storeUser: { user -> AnyPublisher<Key, Error> in
+                    .create { subscriber in
+                        do {
+                            let data = try JSONEncoder().encode(user)
+                            keychain.set(data, forKey: Key.user.rawValue)
 
-                        return .success(.user)
-                    } catch {
-                        return .failure(error)
+                            subscriber.send(.user)
+                            subscriber.send(completion: .finished)
+                        } catch {
+                            subscriber.send(completion: .failure(error))
+                        }
+
+                        return AnyCancellable {}
                     }
-                }
             }
         )
     }()

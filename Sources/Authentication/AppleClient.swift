@@ -7,10 +7,10 @@
 
 import AuthenticationServices
 import Combine
-import ComposableArchitecture
+import CombineExt
 
 public struct AppleClient {
-    public let authenticate: () -> Effect<Either<SignupCredentials, LoginCredentials>, Never>
+    public let authenticate: () -> AnyPublisher<Either<SignupCredentials, LoginCredentials>, Never>
 }
 
 public extension AppleClient {
@@ -130,7 +130,7 @@ public extension AppleClient {
                     case .login(let creds): return .right(creds)
                     case .error(let error): return nil // TODO(alex): handle error
                     }
-                }.first().eraseToEffect()
+                }.first().eraseToAnyPublisher()
             }
         )
     }()

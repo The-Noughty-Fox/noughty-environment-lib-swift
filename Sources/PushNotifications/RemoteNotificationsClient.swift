@@ -5,8 +5,6 @@
 //  Created by Alex Culeva on 18.04.2021.
 //
 
-import ComposableArchitecture
-
 public struct RemoteNotificationsClient {
     public var isRegistered: () -> Bool
     public var register: () -> Void

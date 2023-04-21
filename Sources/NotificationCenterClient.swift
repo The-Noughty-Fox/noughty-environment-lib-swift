@@ -6,17 +6,17 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import Combine
 
 public struct NotificationCenterClient {
-    public let subscribe: (Notification.Name) -> Effect<Notification, Never>
+    public let subscribe: (Notification.Name) -> AnyPublisher<Notification, Never>
 }
 
 public extension NotificationCenterClient {
     static let live: Self = {
         let nc = NotificationCenter.default
         return Self(
-            subscribe: { nc.publisher(for: $0).eraseToEffect() }
+            subscribe: { nc.publisher(for: $0).eraseToAnyPublisher() }
         )
     }()
 }

@@ -1,7 +1,6 @@
 import Combine
 import UserNotifications
 import CombineExt
-import ComposableArchitecture
 
 //TODO: Add pending and delivered notifications management
 public struct UserNotificationClient {
