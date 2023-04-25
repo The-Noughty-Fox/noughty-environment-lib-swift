@@ -28,7 +28,7 @@ public extension FacebookClient {
 }
 
 extension FacebookClient {
-    static let live: Self = {
+    public static let live: Self = {
         typealias Subject = PassthroughSubject<Credentials, Swift.Error>
         let loginManager = LoginManager()
 
