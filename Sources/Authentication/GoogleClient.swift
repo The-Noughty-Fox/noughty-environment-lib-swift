@@ -20,7 +20,7 @@ public struct GoogleClient {
 
 public extension GoogleClient {
     struct Credentials: Equatable, Codable {
-        let token: String
+        public let token: String
     }
 }
 

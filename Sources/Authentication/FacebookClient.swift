@@ -18,7 +18,7 @@ public struct FacebookClient {
 
 public extension FacebookClient {
     struct Credentials: Equatable, Codable {
-        let token: String
+        public let token: String
     }
 
     enum Error: Swift.Error {
