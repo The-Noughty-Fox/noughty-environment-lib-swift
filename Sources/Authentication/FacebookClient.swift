@@ -24,6 +24,7 @@ public extension FacebookClient {
     enum Error: Swift.Error {
         case noResult
         case cancelled
+        case noToken
     }
 }
 
@@ -36,22 +37,38 @@ extension FacebookClient {
             let subject = Subject()
 
             loginManager.logIn(
-                configuration: .init(permissions: permissions, tracking: .limited)) { result in
-                    switch result {
-                    case .cancelled:
-                        subject.send(completion: .failure(Error.cancelled))
-                    case .failed(let error):
-                        subject.send(completion: .failure(error))
-                    case .success(granted: _, declined: _, token: let token):
-                        subject.send(.init(token: token?.tokenString ?? ""))
-                    }
+                permissions: permissions,
+                from: (UIApplication.shared.connectedScenes.first! as! UIWindowScene).windows.first!.rootViewController
+            ) { result, error in
+                if let error {
+                    subject.send(completion: .failure(error))
+                    return
                 }
+
+                guard let result else {
+                    subject.send(completion: .failure(Error.noResult))
+                    return
+                }
+
+                if result.isCancelled {
+                    subject.send(completion: .failure(Error.cancelled))
+                    return
+                }
+
+                guard let token = result.token else {
+                    subject.send(completion: .failure(Error.noToken))
+                    return
+                }
+
+                subject.send(.init(token: token.tokenString))
+                subject.send(completion: .finished)
+            }
 
             return subject.eraseToAnyPublisher()
         } signOut: {
             loginManager.logOut()
         } handleURL: { url in
-            loginManager.application(
+            ApplicationDelegate.shared.application(
                 UIApplication.shared,
                 open: url,
                 sourceApplication: nil,

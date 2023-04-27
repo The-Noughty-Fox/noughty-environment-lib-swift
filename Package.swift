@@ -15,7 +15,7 @@ let package = Package(
         .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "19.0.0"),
         .package(name: "CombineExt", url: "https://github.com/CombineCommunity/CombineExt.git", from: "1.0.0"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS", .upToNextMajor(from: "6.0.0")),
-        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", .upToNextMajor(from: "16.0.0"))
+        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", .upToNextMajor(from: "15.0.0"))
     ],
     targets: [
         .target(
