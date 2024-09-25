@@ -8,35 +8,62 @@
 import Combine
 import UIKit
 
+extension AnyPublisher {
+    func async() async throws -> Output {
+        try await withCheckedThrowingContinuation { continuation in
+            var cancellable: AnyCancellable?
+            
+            cancellable = sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        break
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+
+                    cancellable?.cancel()
+                },
+                receiveValue: { value in
+                    continuation.resume(returning: value)
+                }
+            )
+        }
+    }
+}
+
 public struct Authentication<User> {
     public struct Environment {
         public struct API {
-            let authenticateWithApple: (AppleClient.APICredentials) -> AnyPublisher<User, Error>
-            let authenticateWithGoogle: (GoogleClient.Credentials) -> AnyPublisher<User, Error>
+            let authenticateWithApple: (AppleClient.APICredentials) async throws -> User
+            let authenticateWithGoogle: (GoogleClient.Credentials) async throws -> User
+            let authenticateWithFacebook: (FacebookClient.Credentials) async throws -> User
 
             public init(
-                authenticateWithApple: @escaping (AppleClient.APICredentials) -> AnyPublisher<User, Error>,
-                authenticateWithGoogle: @escaping (GoogleClient.Credentials) -> AnyPublisher<User, Error>
+                authenticateWithApple: @escaping (AppleClient.APICredentials) async throws -> User,
+                authenticateWithGoogle: @escaping (GoogleClient.Credentials) async throws -> User,
+                authenticateWithFacebook: @escaping (FacebookClient.Credentials) async throws -> User
             ) {
                 self.authenticateWithApple = authenticateWithApple
                 self.authenticateWithGoogle = authenticateWithGoogle
+                self.authenticateWithFacebook = authenticateWithFacebook
             }
         }
         public let api: () -> API
         public let appleClient: () -> AppleClient
         public let googleClient: () -> GoogleClient
-        public let keychain: () -> KeychainClient
+        public let facebookClient: () -> FacebookClient
 
         public init(
             api: @escaping () -> API,
             appleClient: @escaping () -> AppleClient,
             googleClient: @escaping () -> GoogleClient,
-            keychain: @escaping () -> KeychainClient
+            facebookClient: @escaping () -> FacebookClient
         ) {
             self.api = api
             self.appleClient = appleClient
             self.googleClient = googleClient
-            self.keychain = keychain
+            self.facebookClient = facebookClient
         }
     }
 
@@ -46,48 +73,34 @@ public struct Authentication<User> {
         self.environment = environment
     }
 
-    public func authenticateWithApple() -> AnyPublisher<User, Error> {
-        environment
-            .appleClient()
-            .authenticate()
-            .flatMap { [environment] credentials -> AnyPublisher<User, Error> in
-                let authenticate: () -> AnyPublisher<User, Error>  = {
-                    environment.api().authenticateWithApple(
-                        credentials.either(
-                            ifLeft: { credentials in
-                                AppleClient.APICredentials.init(
-                                    userInfo: credentials.userInfo,
-                                    token: credentials.token,
-                                    authorizationCode: credentials.authorizationCode
-                                )
-                            }, ifRight: { credentials in
-                                AppleClient.APICredentials.init(
-                                    userInfo: nil,
-                                    token: credentials.token,
-                                    authorizationCode: credentials.authorizationCode
-                                )
-                            }
-                        )
+    public func authenticateWithApple() async throws -> User {
+        let credentials = try await environment.appleClient().authenticate().async()
+        return try await environment.api().authenticateWithApple(
+            credentials.either(
+                ifLeft: { credentials in
+                    AppleClient.APICredentials.init(
+                        userInfo: credentials.userInfo,
+                        token: credentials.token,
+                        authorizationCode: credentials.authorizationCode
                     )
-                    .receive(on: DispatchQueue.main)
-                    .eraseToAnyPublisher()
+                }, ifRight: { credentials in
+                    AppleClient.APICredentials.init(
+                        userInfo: nil,
+                        token: credentials.token,
+                        authorizationCode: credentials.authorizationCode
+                    )
                 }
-
-                switch credentials {
-                case .left(let signup):
-                    return environment.keychain().storeUser(signup.userInfo)
-                        .flatMap { _ in authenticate() }
-                        .eraseToAnyPublisher()
-                case .right(_):
-                    return authenticate()
-                }
-            }.eraseToAnyPublisher()
+            )
+        )
     }
 
-    public func authenticateWithGoogle(clientID: GoogleClient.ClientID, presenter: UIViewController) -> AnyPublisher<User, Error> {
-        return environment.googleClient()
-            .authenticate(clientID, presenter)
-            .flatMap(environment.api().authenticateWithGoogle)
-            .eraseToAnyPublisher()
+    public func authenticateWithGoogle(clientID: GoogleClient.ClientID, presenter: UIViewController) async throws -> User {
+        let credential = try await environment.googleClient().authenticate(clientID, presenter).async()
+        return try await environment.api().authenticateWithGoogle(credential)
+    }
+
+    public func authenticateWithFacebook(permissions: [String]) async throws -> User {
+        let credential = try await environment.facebookClient().authenticate(permissions).async()
+        return try await environment.api().authenticateWithFacebook(credential)
     }
 }

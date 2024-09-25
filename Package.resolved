@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "Facebook",
+        "repositoryURL": "https://github.com/facebook/facebook-ios-sdk",
+        "state": {
+          "branch": null,
+          "revision": "3cebc3b1d13dbe85868cc04f5bed63648e8c410c",
+          "version": "17.1.0"
+        }
+      },
+      {
         "package": "GoogleSignIn",
         "repositoryURL": "https://github.com/google/GoogleSignIn-iOS",
         "state": {
