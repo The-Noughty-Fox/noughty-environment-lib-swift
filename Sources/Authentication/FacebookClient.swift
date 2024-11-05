@@ -42,16 +42,16 @@ struct CodableLocation: Codable, Equatable {
 }
 
 public struct UserInfo: Equatable, Codable {
-    let id: String?
-    let email: String?
-    let friendIDs: [String]?
-    let birthday: Date?
-    let ageRange: CodableUserAgeRange?
-    let gender: String?
-    let location: CodableLocation?
-    let hometown: CodableLocation?
-    let profileURL: URL?
-    let token: String
+    public let id: String?
+    public let email: String?
+    public let friendIDs: [String]?
+    public let birthday: Date?
+    public let ageRange: CodableUserAgeRange?
+    public let gender: String?
+    public let location: CodableLocation?
+    public let hometown: CodableLocation?
+    public let profileURL: URL?
+    public let token: String
 }
 
 extension FacebookClient {
