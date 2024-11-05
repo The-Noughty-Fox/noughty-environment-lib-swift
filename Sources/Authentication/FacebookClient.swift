@@ -11,9 +11,9 @@ public struct FacebookClient {
 
 public extension FacebookClient {
     struct Credentials: Equatable, Codable {
-        public let token: String
+        public let userInfo: UserInfo
     }
-
+    
     enum Error: Swift.Error {
         case noResult
         case cancelled
@@ -21,16 +21,47 @@ public extension FacebookClient {
     }
 }
 
+public struct CodableUserAgeRange: Codable, Equatable {
+    let min: Int?
+    let max: Int?
+    
+    init(from fbAgeRange: UserAgeRange?) {
+        self.min = fbAgeRange?.min?.intValue
+        self.max = fbAgeRange?.max?.intValue
+    }
+}
+
+struct CodableLocation: Codable, Equatable {
+    let id: String?
+    let name: String?
+    
+    init(from fbLocation: Location?) {
+        self.id = fbLocation?.id
+        self.name = fbLocation?.name
+    }
+}
+
+public struct UserInfo: Equatable, Codable {
+    let id: String?
+    let email: String?
+    let friendIDs: [String]?
+    let birthday: Date?
+    let ageRange: CodableUserAgeRange?
+    let gender: String?
+    let location: CodableLocation?
+    let hometown: CodableLocation?
+    let profileURL: URL?
+    let token: String
+}
+
 extension FacebookClient {
     public static let live: Self = {
         typealias Subject = PassthroughSubject<Credentials, Swift.Error>
         let loginManager = LoginManager()
-
+        
         return .init() { permissions in
             let subject = Subject()
-
-//            loginManager.logIn(configuration: .init(permissions: ["user_profile", "email"], tracking: .limited) {
-
+            
             loginManager.logIn(configuration: .init(permissions: permissions, tracking: .limited, nonce: "2AF72FD0-712D-422D-A5A7-4CEA898A20FE")) { result in
                 switch result {
                 case .cancelled, .failed:
@@ -72,41 +103,23 @@ extension FacebookClient {
                         return
                     }
                     
-                   // AuthenticationToken.
+                    let userInfo: UserInfo = .init(
+                        id: userID,
+                        email: email,
+                        friendIDs: friendIDs,
+                        birthday: birthday,
+                        ageRange: .init(from: ageRange),
+                        gender: gender,
+                        location: .init(from: location),
+                        hometown: .init(from: hometown),
+                        profileURL: profileURL,
+                        token: tokenString
+                    )
                     
-                    subject.send(.init(token: tokenString))
+                    subject.send(.init(userInfo: userInfo))
                     subject.send(completion: .finished)
-
                 }
             }
-    
-//            loginManager.logIn(
-//                permissions: permissions,
-//                from: (UIApplication.shared.connectedScenes.first! as! UIWindowScene).windows.first!.rootViewController
-//            ) { result, error in
-//                if let error {
-//                    subject.send(completion: .failure(error))
-//                    return
-//                }
-//
-//                guard let result else {
-//                    subject.send(completion: .failure(Error.noResult))
-//                    return
-//                }
-//
-//                if result.isCancelled {
-//                    subject.send(completion: .failure(Error.cancelled))
-//                    return
-//                }
-//
-//                guard let token = result.token else {
-//                    subject.send(completion: .failure(Error.noToken))
-//                    return
-//                }
-//
-//                subject.send(.init(token: token.tokenString))
-//                subject.send(completion: .finished)
-//            }
 
             return subject.eraseToAnyPublisher()
         } signOut: {
