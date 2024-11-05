@@ -22,8 +22,8 @@ public extension FacebookClient {
 }
 
 public struct CodableUserAgeRange: Codable, Equatable {
-    let min: Int?
-    let max: Int?
+    public let min: Int?
+    public let max: Int?
     
     init(from fbAgeRange: UserAgeRange?) {
         self.min = fbAgeRange?.min?.intValue
@@ -31,9 +31,9 @@ public struct CodableUserAgeRange: Codable, Equatable {
     }
 }
 
-struct CodableLocation: Codable, Equatable {
-    let id: String?
-    let name: String?
+public struct CodableLocation: Codable, Equatable {
+    public let id: String?
+    public let name: String?
     
     init(from fbLocation: Location?) {
         self.id = fbLocation?.id
