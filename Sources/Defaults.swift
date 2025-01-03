@@ -8,21 +8,21 @@ import Foundation
 import Combine
 
 @propertyWrapper
-struct Defaults<T: Codable> where T: Equatable {
-    let defaultValue: T
-    let key: String
+public struct Defaults<T: Codable> where T: Equatable {
+    public let defaultValue: T
+    public let key: String
 
-    init(wrappedValue defaultValue: T, _ key: String) {
+    public init(wrappedValue defaultValue: T, _ key: String) {
         self.key = key
         self.defaultValue = defaultValue
     }
 
-    var wrappedValue: T {
+    public var wrappedValue: T {
         get {
             guard let data = UserDefaults.standard.data(forKey: key) else { return defaultValue }
             do {
                 let item = try JSONDecoder().decode(T.self, from: data)
-                return item
+            return item
             } catch {
                 return defaultValue
             }
@@ -33,7 +33,7 @@ struct Defaults<T: Codable> where T: Equatable {
         }
     }
 
-    var projectedValue: AnyPublisher<T, Never> {
+    public var projectedValue: AnyPublisher<T, Never> {
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
             .map { _ in UserDefaults.standard.data(forKey: key) }
             .compactMap { $0 }
